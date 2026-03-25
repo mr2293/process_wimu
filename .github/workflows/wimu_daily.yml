@@ -1,0 +1,121 @@
+name: Daily WIMU Fetch & Deploy
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 6am UTC = midnight Mexico City (CST, UTC-6)
+  workflow_dispatch:      # allow manual trigger from GitHub UI
+
+jobs:
+  fetch-process-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # --- Checkout all repos ---
+
+      - name: Checkout process_wimu
+        uses: actions/checkout@v4
+
+      - name: Checkout dashboard_cargas
+        uses: actions/checkout@v4
+        with:
+          repository: mr2293/dashboard_cargas
+          token: ${{ secrets.GH_PAT }}
+          path: dashboard_cargas
+
+      - name: Checkout dashboard_femenil
+        uses: actions/checkout@v4
+        with:
+          repository: mr2293/dashboard_femenil
+          token: ${{ secrets.GH_PAT }}
+          path: dashboard_femenil
+
+      - name: Checkout cargas_fisicas_7
+        uses: actions/checkout@v4
+        with:
+          repository: mr2293/cargas_fisicas_7
+          token: ${{ secrets.GH_PAT }}
+          path: cargas_fisicas_7
+
+      # --- Set up R ---
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
+            libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+      - name: Install R packages
+        run: |
+          Rscript -e "install.packages(c(
+            'mice', 'httr', 'rjson', 'vctrs', 'lubridate', 'tidyr',
+            'anytime', 'dplyr', 'jsonlite', 'purrr',
+            'tidyverse', 'ggplot2', 'readxl', 'skimr', 'scales',
+            'readr', 'writexl', 'zoo', 'openxlsx', 'tidylog',
+            'pacman', 'rsconnect'
+          ), repos = 'https://cran.rstudio.com/')"
+
+      # --- Fetch & process ---
+
+      - name: Run primer equipo processing
+        env:
+          WIMU_USERNAME: ${{ secrets.WIMU_USERNAME }}
+          WIMU_PASSWORD: ${{ secrets.WIMU_PASSWORD }}
+          DASHBOARD_CARGAS_CSV: ${{ github.workspace }}/dashboard_cargas/micros/micros_shiny_comb.csv
+          CARGAS7_XLSX: ${{ github.workspace }}/cargas_fisicas_7/data/Sessions_micro01.xlsx
+        run: Rscript wimu_process_primer_equipo.R
+
+      - name: Run femenil processing
+        env:
+          WIMU_USERNAME: ${{ secrets.WIMU_USERNAME }}
+          WIMU_PASSWORD: ${{ secrets.WIMU_PASSWORD }}
+          DASHBOARD_FEMENIL_CSV: ${{ github.workspace }}/dashboard_femenil/micros/micros_shiny_comb_fem.csv
+        run: Rscript wimu_process_femenil.R
+
+      # --- Commit updated data files ---
+
+      - name: Commit data to dashboard_cargas
+        run: |
+          cd ${{ github.workspace }}/dashboard_cargas
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add micros/micros_shiny_comb.csv
+          git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Commit data to dashboard_femenil
+        run: |
+          cd ${{ github.workspace }}/dashboard_femenil
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add micros/micros_shiny_comb_fem.csv
+          git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Commit data to cargas_fisicas_7
+        run: |
+          cd ${{ github.workspace }}/cargas_fisicas_7
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/Sessions_micro01.xlsx
+          git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
+          git push
+
+      # --- Deploy cargas_fisicas_7 to shinyapps.io ---
+      # dashboard_cargas and dashboard_femenil have their own deploy workflows
+      # that trigger automatically on push — no need to deploy them here.
+
+      - name: Deploy cargas_fisicas_7
+        env:
+          SHINY_ACC_NAME: ${{ secrets.SHINY_ACC_NAME }}
+          TOKEN: ${{ secrets.SHINY_TOKEN }}
+          SECRET: ${{ secrets.SHINY_SECRET }}
+        working-directory: cargas_fisicas_7
+        run: Rscript deploy.R
