@@ -118,4 +118,6 @@ jobs:
           TOKEN: ${{ secrets.SHINY_TOKEN }}
           SECRET: ${{ secrets.SHINY_SECRET }}
         working-directory: cargas_fisicas_7
-        run: Rscript --no-init-file deploy.R
+        run: |
+          Rscript --no-init-file -e "install.packages('rsconnect', repos='https://cran.rstudio.com/')"
+          Rscript --no-init-file deploy.R
