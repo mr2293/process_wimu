@@ -117,7 +117,10 @@ jobs:
           SHINY_ACC_NAME: ${{ secrets.SHINY_ACC_NAME }}
           TOKEN: ${{ secrets.SHINY_TOKEN }}
           SECRET: ${{ secrets.SHINY_SECRET }}
-        working-directory: cargas_fisicas_7
         run: |
-          Rscript --no-init-file -e "install.packages('rsconnect', repos='https://cran.rstudio.com/')"
-          Rscript --no-init-file deploy.R
+          docker build -t cargas_fisicas_7 cargas_fisicas_7/
+          docker run --rm \
+            -e SHINY_ACC_NAME="${{ secrets.SHINY_ACC_NAME }}" \
+            -e TOKEN="${{ secrets.SHINY_TOKEN }}" \
+            -e SECRET="${{ secrets.SHINY_SECRET }}" \
+            cargas_fisicas_7
