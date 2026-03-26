@@ -288,6 +288,8 @@ names(final_dataframe)
 final_dataframe <- final_dataframe %>%
   arrange(session.date_time)
 
+final_dataframe$session.date_time <- with_tz(final_dataframe$session.date_time, tzone = "America/Mexico_City")
+
 # sum(is.na(final_dataframe$player.wimuName))
 # 
 # all(final_dataframe$player.wimuName %in% players_selection$player.wimuName)
