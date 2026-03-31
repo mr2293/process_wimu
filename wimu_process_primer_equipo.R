@@ -24,7 +24,7 @@ data_micro <- final_dataframe %>%
     max_speed         = sprint.maxSpeed,
     distance_abs      = sprint.distance,
     sprints_abs_count = sprint.abs,
-    sprints_rel_count = sprint.relRepetitions,
+    sprints_rel_count = sprint.nSprints,
     player_load       = load.Player_Load,
     HMLD_m            = load.hmld,
     step_balance      = steps.stepBalance
