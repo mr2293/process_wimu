@@ -22,8 +22,8 @@ data_micro <- final_dataframe %>%
     HSR_abs_dist      = distance.HSRAbsDistance,
     perc_HSR_abs      = distance.percentageHSRAbs,
     max_speed         = sprint.maxSpeed,
-    distance_abs      = sprint.abs,
-    sprints_abs_count = sprint.nSprints,
+    distance_abs      = sprint.distance,
+    sprints_abs_count = sprint.abs,
     sprints_rel_count = sprint.relRepetitions,
     player_load       = load.Player_Load,
     HMLD_m            = load.hmld,
@@ -42,6 +42,7 @@ data_micro <- final_dataframe %>%
     TL              = RPE * player_load,
     match_day       = ifelse(match_day != "MD", gsub(" MD", "", match_day), match_day)
   ) %>%
+  # filter(team.name == "America Primer Equipo") |>
   filter(!player %in% c("www", "Guillermo Ochoa")) %>%
   distinct(player, date, match_day, .keep_all = TRUE)
 
