@@ -30,7 +30,7 @@ data_micro <- final_dataframe %>%
     step_balance      = steps.stepBalance
   ) %>%
   mutate(
-    date            = as.Date(session.date_time),
+    date            = if_else(is.na(team.name) & match_day == "MD", as.Date(session.date_time) - 1, as.Date(session.date_time)),
     drill_duration  = drillsDuration / 60000,  # milliseconds to minutes
     HSR_over_time   = HSR_abs_dist / session_duration,
     perc_HSR_abs    = perc_HSR_abs / 100,
@@ -59,9 +59,14 @@ path_csv  <- Sys.getenv("DASHBOARD_CARGAS_CSV",
                         unset = "/Users/mateorodriguez/Desktop/analisis_CA/dashboard_cargas/micros/micros_shiny_comb.csv")
 path_xlsx <- Sys.getenv("CARGAS7_XLSX",
                         unset = "/Users/mateorodriguez/Desktop/analisis_CA/cargas_fisicas_7/data/Sessions_micro01.xlsx")
+path_xlsx_clausura26 <- "/Users/mateorodriguez/Desktop/analisis_CA/Temporadas/clausura_26/micros_procesados/Sessions_micro01.xlsx"
 
 write_csv(data_micro, path_csv)
 
 if (dir.exists(dirname(path_xlsx))) {
   write_xlsx(data_micro, path = path_xlsx)
+}
+
+if (dir.exists(dirname(path_xlsx_clausura26))) {
+  write_xlsx(data_micro, path = path_xlsx_clausura26)
 }
