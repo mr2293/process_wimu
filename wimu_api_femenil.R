@@ -27,8 +27,10 @@ for(i in 1:10) {
   pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=",i,sep=""),
              add_headers(Authorization=paste(get_token[[1]])))
   pla <- toJSON(content(pla))
-  pla <- as.data.frame(jsonlite::fromJSON(pla))
-  players <- vec_rbind(players,pla)
+  pla <- jsonlite::fromJSON(pla, flatten = TRUE)  # flatten nested fields at parse time
+  pla <- as.data.frame(pla)
+  pla <- mutate(pla, across(everything(), as.character))
+  players <- vec_rbind(players, pla)
 }
 rm(pla)
 
