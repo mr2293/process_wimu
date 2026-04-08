@@ -258,6 +258,9 @@ informs_sessions_final_v2 <- informs_sessions_unested_v2 %>%
 final_dataframe <- informs_sessions_final_v2
 final_dataframe$duration_min <- final_dataframe$duration / 60000
 
+final_dataframe <- final_dataframe %>%
+  mutate(across(everything(), ~ suppressWarnings(type.convert(.x, as.is = TRUE))))
+
 ##Percentage of Max Speed
 final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed / 
                                           final_dataframe$player.maxSpeed)*100
