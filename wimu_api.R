@@ -24,11 +24,13 @@ get_token <- as.data.frame(jsonlite::fromJSON(get_token))
 #Players Endpoint to Dataframe
 players <- data.frame()
 for(i in 1:10) {
-  pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=",i,sep=""),
-             add_headers(Authorization=paste(get_token[[1]])))
+  pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
+             add_headers(Authorization = paste(get_token[[1]])))
   pla <- toJSON(content(pla))
-  pla <- as.data.frame(jsonlite::fromJSON(pla))
-  players <- vec_rbind(players,pla)
+  pla <- jsonlite::fromJSON(pla, flatten = TRUE)  # flatten nested fields at parse time
+  pla <- as.data.frame(pla)
+  pla <- mutate(pla, across(everything(), as.character))
+  players <- vec_rbind(players, pla)
 }
 rm(pla)
 
@@ -255,6 +257,9 @@ informs_sessions_final_v2 <- informs_sessions_unested_v2 %>%
 ##Convert duration to minutes
 final_dataframe <- informs_sessions_final_v2
 final_dataframe$duration_min <- final_dataframe$duration / 60000
+
+final_dataframe <- final_dataframe %>%
+  mutate(across(everything(), ~ suppressWarnings(type.convert(.x, as.is = TRUE))))
 
 ##Percentage of Max Speed
 final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed / 
