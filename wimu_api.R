@@ -141,6 +141,8 @@ sessions <- purrr::discard(sessions, is.list)
 #Columns needed for the output
 ##Player: Max Speed, Max Acc, Max Dec
 players_selection <- players[,c("id","wimuName","position","maxSpeed","maxAcc","minAcc")]
+players_selection <- players_selection %>%
+  mutate(across(c(maxSpeed, maxAcc, minAcc), ~ suppressWarnings(as.numeric(.x))))
 ##Teams: Name
 teams_selection <- teams[,c("id","name")]
 ##Session: Group, Team, Date, Name, Type
