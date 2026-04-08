@@ -276,7 +276,9 @@ final_dataframe <- final_dataframe %>%
   mutate(across(everything(), ~ suppressWarnings(type.convert(.x, as.is = TRUE))))
 
 ##Percentage of Max Speed
-final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed / 
+final_dataframe$sprint.maxSpeed  <- as.numeric(final_dataframe$sprint.maxSpeed)
+final_dataframe$player.maxSpeed  <- as.numeric(final_dataframe$player.maxSpeed)
+final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed /
                                           final_dataframe$player.maxSpeed)*100
 
 ##Relative metrics (HSR Abs & Rel, Sprint Abs & Rel, Acc & HIA, Dec & HID)
