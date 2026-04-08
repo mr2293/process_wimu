@@ -24,8 +24,8 @@ get_token <- as.data.frame(jsonlite::fromJSON(get_token))
 #Players Endpoint to Dataframe
 players <- data.frame()
 for(i in 1:10) {
-  pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=",i,sep=""),
-             add_headers(Authorization=paste(get_token[[1]])))
+  pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
+             add_headers(Authorization = paste(get_token[[1]])))
   pla <- toJSON(content(pla))
   pla <- jsonlite::fromJSON(pla, flatten = TRUE)  # flatten nested fields at parse time
   pla <- as.data.frame(pla)
