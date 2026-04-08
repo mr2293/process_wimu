@@ -287,3 +287,5 @@ names(final_dataframe)
 
 final_dataframe <- final_dataframe %>%
   arrange(session.date_time)
+
+final_dataframe$session.date_time <- with_tz(final_dataframe$session.date_time, tzone = "America/Mexico_City")

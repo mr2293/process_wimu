@@ -30,7 +30,7 @@ data_micro <- final_dataframe %>%
     step_balance      = steps.stepBalance
   ) %>%
   mutate(
-    date            = as.Date(session.date_time),
+    date            = as.Date(session.date_time, tz = "America/Mexico_City"),
     drill_duration  = drillsDuration / 60000,  # milliseconds to minutes
     HSR_over_time   = HSR_abs_dist / session_duration,
     perc_HSR_abs    = perc_HSR_abs / 100,
