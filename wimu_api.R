@@ -141,8 +141,6 @@ sessions <- purrr::discard(sessions, is.list)
 #Columns needed for the output
 ##Player: Max Speed, Max Acc, Max Dec
 players_selection <- players[,c("id","wimuName","position","maxSpeed","maxAcc","minAcc")]
-players_selection <- players_selection %>%
-  mutate(across(c(maxSpeed, maxAcc, minAcc), ~ suppressWarnings(as.numeric(.x))))
 ##Teams: Name
 teams_selection <- teams[,c("id","name")]
 ##Session: Group, Team, Date, Name, Type
@@ -200,18 +198,6 @@ informs_selection <- informs[,c(
   # "rpe.wellnessMood",
   # "rpe.wellnessFatigue"
 )]
-informs_selection <- informs_selection %>%
-  mutate(across(c(duration, drillsDuration,
-                  distance.distance, distance.distanceMin,
-                  distance.HSRRelCount, distance.HSRRelDistance,
-                  distance.HSRAbsCount, distance.HSRAbsDistance,
-                  distance.percentageHSRAbs,
-                  accelerations.accelerations, accelerations.decelerations,
-                  sprint.abs, sprint.nSprints, sprint.distance,
-                  sprint.distanceRelative, sprint.maxSpeed, sprint.relRepetitions,
-                  load.hmld, load.hmldMin, load.Player_Load, load.Player_LoadMin,
-                  load.highIntWorkAccDist, steps.stepBalance),
-                ~ suppressWarnings(as.numeric(.x))))
 
 # informs_selection <- informs_selection |>
 #   filter(task == "Drills")
@@ -276,9 +262,7 @@ final_dataframe <- final_dataframe %>%
   mutate(across(everything(), ~ suppressWarnings(type.convert(.x, as.is = TRUE))))
 
 ##Percentage of Max Speed
-final_dataframe$sprint.maxSpeed  <- as.numeric(final_dataframe$sprint.maxSpeed)
-final_dataframe$player.maxSpeed  <- as.numeric(final_dataframe$player.maxSpeed)
-final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed /
+final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed / 
                                           final_dataframe$player.maxSpeed)*100
 
 ##Relative metrics (HSR Abs & Rel, Sprint Abs & Rel, Acc & HIA, Dec & HID)

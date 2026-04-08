@@ -9,6 +9,15 @@ options(scipen = 999)
 # Fetch data from the API (produces final_dataframe)
 source("wimu_api_femenil.R")
 
+# Ensure numeric types for columns used in downstream calculations
+final_dataframe <- final_dataframe %>%
+  mutate(across(c(sprint.maxSpeed, player.maxSpeed, duration_min, drillsDuration,
+                  distance.distance, distance.distanceMin,
+                  distance.HSRAbsDistance, distance.percentageHSRAbs,
+                  sprint.abs, sprint.nSprints, sprint.relRepetitions,
+                  load.Player_Load, load.hmld, steps.stepBalance),
+                ~ suppressWarnings(as.numeric(.x))))
+
 # Rename and transform API columns to match downstream format
 data_micro <- final_dataframe %>%
   select(-player) %>%  # drop player ID — player.wimuName becomes the player column
