@@ -200,6 +200,18 @@ informs_selection <- informs[,c(
   # "rpe.wellnessMood",
   # "rpe.wellnessFatigue"
 )]
+informs_selection <- informs_selection %>%
+  mutate(across(c(duration, drillsDuration,
+                  distance.distance, distance.distanceMin,
+                  distance.HSRRelCount, distance.HSRRelDistance,
+                  distance.HSRAbsCount, distance.HSRAbsDistance,
+                  distance.percentageHSRAbs,
+                  accelerations.accelerations, accelerations.decelerations,
+                  sprint.abs, sprint.nSprints, sprint.distance,
+                  sprint.distanceRelative, sprint.maxSpeed, sprint.relRepetitions,
+                  load.hmld, load.hmldMin, load.Player_Load, load.Player_LoadMin,
+                  load.highIntWorkAccDist, steps.stepBalance),
+                ~ suppressWarnings(as.numeric(.x))))
 
 # informs_selection <- informs_selection |>
 #   filter(task == "Drills")
