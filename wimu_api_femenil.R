@@ -11,9 +11,8 @@ Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 options(scipen = 100)
 
 #Token (user and password for the WIMU API, plus start date)
-##CHANGE "username" AND "password" BEFORE RUNNING THE SCRIPT
-username <- ifelse(nchar(Sys.getenv("WIMU_USERNAME")) > 0, Sys.getenv("WIMU_USERNAME"), "America")
-password <- ifelse(nchar(Sys.getenv("WIMU_PASSWORD")) > 0, Sys.getenv("WIMU_PASSWORD"), "America@2026")
+username <- Sys.getenv("WIMU_USERNAME")
+password <- Sys.getenv("WIMU_PASSWORD")
 date <- "2025/12/17"
 # date_end <- "2026/03/18"
 team <- "5d55d7172ab79c0012d744f7"
