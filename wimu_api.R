@@ -1,13 +1,12 @@
 #Libraries
 library(mice) #needed for Power BI
 library(httr) #request (GET) to the API
-library(rjson) #transform JSON to dataframe
 library(vctrs) #join dataframes by rows
 library(lubridate) #transform date column (character) to yyyy-MM-dd (date)
 library(tidyr) #expand lists from dataframe
 library(anytime) #transform data format to UNIX
 library(dplyr) #selecting columns and manipulating dataframes
-Sys.setlocale("LC_CTYPE", "en_US.UTF-8") 
+Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
 options(scipen = 100)
 
 #Token (user and password for the WIMU API, plus start date)
@@ -17,16 +16,14 @@ date <- "2025/12/17"
 # date_end <- "2026/03/18"
 team <- "5d6812762ab79c0013380530"
 get_token <- GET(paste("https://femexfut.wimucloud.com/apis/rest/login?username=",username,"&password=",password,sep=""))
-get_token <- toJSON(content(get_token))
-get_token <- as.data.frame(jsonlite::fromJSON(get_token))
+get_token <- as.data.frame(jsonlite::fromJSON(content(get_token, as = "text", encoding = "UTF-8")))
 
 #Players Endpoint to Dataframe
 players <- data.frame()
 for(i in 1:10) {
   pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
              add_headers(Authorization = paste(get_token[[1]])))
-  pla <- toJSON(content(pla))
-  pla <- jsonlite::fromJSON(pla, flatten = TRUE)  # flatten nested fields at parse time
+  pla <- jsonlite::fromJSON(content(pla, as = "text", encoding = "UTF-8"), flatten = TRUE)  # flatten nested fields at parse time
   pla <- as.data.frame(pla)
   pla <- mutate(pla, across(everything(), as.character))
   players <- vec_rbind(players, pla)
@@ -34,7 +31,7 @@ for(i in 1:10) {
 rm(pla)
 
 # players_flat <- players
-# 
+#
 # for (col in names(players_flat)) {
 #   if (is.list(players_flat[[col]])) {
 #     players_flat[[col]] <- sapply(players_flat[[col]], function(x) {
@@ -45,14 +42,13 @@ rm(pla)
 #     })
 #   }
 # }
-# 
+#
 # write.csv(players_flat, "/Users/mateorodriguez/Desktop/players.csv", row.names = FALSE)
 
 #Teams Endpoint to Dataframe
 teams <- GET("https://femexfut.wimucloud.com/apis/rest/teams",
              add_headers(Authorization=paste(get_token[[1]])))
-teams <- toJSON(content(teams))
-teams <- as.data.frame(jsonlite::fromJSON(teams))
+teams <- as.data.frame(jsonlite::fromJSON(content(teams, as = "text", encoding = "UTF-8")))
 
 # Team IDs
 # America Primer Equipo : 5d6812762ab79c0013380530
@@ -62,8 +58,7 @@ teams <- as.data.frame(jsonlite::fromJSON(teams))
 #Attributes Endpoint to Dataframe
 attributes <- GET("https://femexfut.wimucloud.com/apis/rest/attributes",
                   add_headers(Authorization=paste(get_token[[1]])))
-attributes <- toJSON(content(attributes))
-attributes <- as.data.frame(jsonlite::fromJSON(attributes))
+attributes <- as.data.frame(jsonlite::fromJSON(content(attributes, as = "text", encoding = "UTF-8")))
 
 #Loop to extract sesions dataframes based on the page parameter (10 pages => last 2000 sessions)
 sessions <- data.frame()
@@ -71,8 +66,7 @@ for(i in 1:10) {
   ses <- GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
                    i,sep=""),
              add_headers(Authorization=paste(get_token[[1]])))
-  ses <- toJSON(content(ses))
-  ses <- as.data.frame(jsonlite::fromJSON(ses))
+  ses <- as.data.frame(jsonlite::fromJSON(content(ses, as = "text", encoding = "UTF-8")))
   sessions <- vec_rbind(sessions,ses)
 }
 rm(ses)
@@ -95,8 +89,7 @@ for (i in 1:10) {
                             i,"&start=",start,
                             # "&end=",end,
                             "&team=",team,sep=""),add_headers(Authorization=paste(get_token[[1]])))
-  sessions_inf <- toJSON(content(sessions_inf))
-  sessions_inf <- as.data.frame(jsonlite::fromJSON(sessions_inf))
+  sessions_inf <- as.data.frame(jsonlite::fromJSON(content(sessions_inf, as = "text", encoding = "UTF-8")))
   sessions_informs <- vec_rbind(sessions_informs,sessions_inf)
 }
 # sessions_informs <- as.data.frame(sessions_informs)
@@ -113,15 +106,14 @@ for (i in 1:nrow(sessions_informs)) {
 informs <- data.frame() #empty dataframe
 for(i in 1:length(urls)) {
   inf <- GET(urls[i], add_headers(Authorization=paste(get_token[[1]]))) #API request
-  inf <- toJSON(content(inf)) #extract content and convert to JSON
-  inf <- as.data.frame(jsonlite::fromJSON(inf)) #convert from JSON to dataframe
+  inf <- as.data.frame(jsonlite::fromJSON(content(inf, as = "text", encoding = "UTF-8"))) #convert from JSON to dataframe
   informs <- vec_rbind(informs,inf) #join dataframe extracted with the previous
 }
-rm(sessions_inf) 
-rm(urls) 
-rm(inf) 
+rm(sessions_inf)
+rm(urls)
+rm(inf)
 ##Date & Time columns
-# informs$date_time <- as_datetime((informs$start)/1000) 
+# informs$date_time <- as_datetime((informs$start)/1000)
 # informs$date <- substr(informs$date_time, start = 1, stop = 10)
 # informs$time <- substr(informs$date_time, start = 12, stop = 20)
 sessions_informs$date_time <- as_datetime((sessions_informs$start)/1000)
@@ -145,7 +137,7 @@ teams_selection <- teams[,c("id","name")]
 ##Session: Group, Team, Date, Name, Type
 sessions_selection <- sessions_informs[,c("id","date_time","name","type","center","matchDay",
                                           "group","weekCalendar")]
-##Attributes: Weather (Session), Contact Level (Drill) 
+##Attributes: Weather (Session), Contact Level (Drill)
 attributes_selection <- attributes[,c("id","name","tags")]
 ##Informs: Core Metrics
 informs_selection <- informs[,c(
@@ -205,18 +197,18 @@ informs_selection <- informs[,c(
 ##Players
 players_selection <- players_selection %>%
   rename_with(~ paste0("player.", .), .cols = -id)
-informs_players <- merge(informs_selection, players_selection, 
+informs_players <- merge(informs_selection, players_selection,
                          by.x = "player", by.y = "id", all.x = TRUE)
 names(informs_players)
 ##Sessions
 sessions_selection <- sessions_selection %>%
   rename_with(~ paste0("session.", .), .cols = -id)
-informs_sessions <- merge(informs_players, sessions_selection, 
+informs_sessions <- merge(informs_players, sessions_selection,
                           by.x = "session", by.y = "id", all.x = TRUE)
 ##Teams
 teams_selection <- teams_selection %>%
   rename_with(~ paste0("team.", .), .cols = -id)
-informs_teams <- merge(informs_sessions, teams_selection, 
+informs_teams <- merge(informs_sessions, teams_selection,
                        by.x = "session.center", by.y = "id", all.x = TRUE)
 informs_sessions <- informs_teams
 names(informs_sessions)
@@ -247,7 +239,7 @@ my_id_columns <- my_id_columns[my_id_columns != "accelerations.ranges"]
 informs_sessions_unested_v2 <- informs_sessions_final %>%
   unnest(col = accelerations.ranges, names_sep = "_")
 informs_sessions_final_v2 <- informs_sessions_unested_v2 %>%
-  mutate(column_name = paste0("accelerations_zones_", accelerations.ranges_min, "_", 
+  mutate(column_name = paste0("accelerations_zones_", accelerations.ranges_min, "_",
                               accelerations.ranges_max)) %>%
   pivot_wider(id_cols = all_of(my_id_columns), names_from = column_name,
               values_from = accelerations.ranges_value, values_fill = NA, values_fn = mean) %>%
@@ -261,7 +253,7 @@ final_dataframe <- final_dataframe %>%
   mutate(across(everything(), ~ suppressWarnings(type.convert(.x, as.is = TRUE))))
 
 ##Percentage of Max Speed
-final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed / 
+final_dataframe$percentage_maxSpeed <- (final_dataframe$sprint.maxSpeed /
                                           final_dataframe$player.maxSpeed)*100
 
 ##Relative metrics (HSR Abs & Rel, Sprint Abs & Rel, Acc & HIA, Dec & HID)
@@ -283,10 +275,10 @@ final_dataframe$accelerations.decelerationsMin <- final_dataframe$accelerations.
 ##Reorder and Remove Columns
 ###Add: week calendar, match day
 names(final_dataframe)
-final_dataframe <- final_dataframe %>% 
+final_dataframe <- final_dataframe %>%
   relocate(session, session.name, session.center, team.name, session.date_time, session.weekCalendar,
-           session.type, session.matchDay, session.group, task, player, player.wimuName, 
-           player.position, player.maxSpeed, player.maxAcc, player.minAcc, duration, duration_min) 
+           session.type, session.matchDay, session.group, task, player, player.wimuName,
+           player.position, player.maxSpeed, player.maxAcc, player.minAcc, duration, duration_min)
 names(final_dataframe)
 
 final_dataframe <- final_dataframe %>%
@@ -295,10 +287,10 @@ final_dataframe <- final_dataframe %>%
 final_dataframe$session.date_time <- with_tz(final_dataframe$session.date_time, tzone = "America/Mexico_City")
 
 # sum(is.na(final_dataframe$player.wimuName))
-# 
+#
 # all(final_dataframe$player.wimuName %in% players_selection$player.wimuName)
-# 
+#
 # nombres_no_encontrados <- unique(final_dataframe$player.wimuName[! (final_dataframe$player.wimuName %in%
 #                                                                       players_selection$player.wimuName)])
-# 
+#
 # print(nombres_no_encontrados)

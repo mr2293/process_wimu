@@ -55,7 +55,7 @@ jobs:
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c(
-            'mice', 'httr', 'rjson', 'vctrs', 'lubridate', 'tidyr',
+            'mice', 'httr', 'vctrs', 'lubridate', 'tidyr',
             'anytime', 'dplyr', 'jsonlite', 'purrr',
             'tidyverse', 'ggplot2', 'readxl', 'skimr', 'scales',
             'readr', 'writexl', 'zoo', 'openxlsx', 'tidylog',
