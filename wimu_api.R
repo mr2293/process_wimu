@@ -16,6 +16,7 @@ date <- "2025/12/17"
 # date_end <- "2026/03/18"
 team <- "5d6812762ab79c0013380530"
 get_token <- GET(paste("https://femexfut.wimucloud.com/apis/rest/login?username=",username,"&password=",password,sep=""))
+if (http_error(get_token)) stop("Login failed — check WIMU_USERNAME and WIMU_PASSWORD env vars (HTTP ", status_code(get_token), ")")
 get_token <- as.data.frame(jsonlite::fromJSON(content(get_token, as = "text", encoding = "UTF-8")))
 
 #Players Endpoint to Dataframe
@@ -23,6 +24,7 @@ players <- data.frame()
 for(i in 1:10) {
   pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
              add_headers(Authorization = paste(get_token[[1]])))
+  if (http_error(pla)) break
   pla <- jsonlite::fromJSON(content(pla, as = "text", encoding = "UTF-8"), flatten = TRUE)  # flatten nested fields at parse time
   pla <- as.data.frame(pla)
   pla <- mutate(pla, across(everything(), as.character))
@@ -66,6 +68,7 @@ for(i in 1:10) {
   ses <- GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
                    i,sep=""),
              add_headers(Authorization=paste(get_token[[1]])))
+  if (http_error(ses)) break
   ses <- as.data.frame(jsonlite::fromJSON(content(ses, as = "text", encoding = "UTF-8")))
   sessions <- vec_rbind(sessions,ses)
 }
@@ -89,6 +92,7 @@ for (i in 1:10) {
                             i,"&start=",start,
                             # "&end=",end,
                             "&team=",team,sep=""),add_headers(Authorization=paste(get_token[[1]])))
+  if (http_error(sessions_inf)) break
   sessions_inf <- as.data.frame(jsonlite::fromJSON(content(sessions_inf, as = "text", encoding = "UTF-8")))
   sessions_informs <- vec_rbind(sessions_informs,sessions_inf)
 }
@@ -106,6 +110,7 @@ for (i in 1:nrow(sessions_informs)) {
 informs <- data.frame() #empty dataframe
 for(i in 1:length(urls)) {
   inf <- GET(urls[i], add_headers(Authorization=paste(get_token[[1]]))) #API request
+  if (http_error(inf)) next
   inf <- as.data.frame(jsonlite::fromJSON(content(inf, as = "text", encoding = "UTF-8"))) #convert from JSON to dataframe
   informs <- vec_rbind(informs,inf) #join dataframe extracted with the previous
 }
