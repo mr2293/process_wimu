@@ -50,6 +50,7 @@ rm(pla)
 #Teams Endpoint to Dataframe
 teams <- GET("https://femexfut.wimucloud.com/apis/rest/teams",
              add_headers(Authorization=paste(get_token[[1]])))
+if (http_error(teams)) stop("Teams request failed (HTTP ", status_code(teams), ")")
 teams <- as.data.frame(jsonlite::fromJSON(content(teams, as = "text", encoding = "UTF-8")))
 
 # Team IDs
@@ -60,6 +61,7 @@ teams <- as.data.frame(jsonlite::fromJSON(content(teams, as = "text", encoding =
 #Attributes Endpoint to Dataframe
 attributes <- GET("https://femexfut.wimucloud.com/apis/rest/attributes",
                   add_headers(Authorization=paste(get_token[[1]])))
+if (http_error(attributes)) stop("Attributes request failed (HTTP ", status_code(attributes), ")")
 attributes <- as.data.frame(jsonlite::fromJSON(content(attributes, as = "text", encoding = "UTF-8")))
 
 #Loop to extract sesions dataframes based on the page parameter (10 pages => last 2000 sessions)
