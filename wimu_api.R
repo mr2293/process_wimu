@@ -22,9 +22,9 @@ get_token <- as.data.frame(jsonlite::fromJSON(content(get_token, as = "text", en
 #Players Endpoint to Dataframe
 players <- data.frame()
 for(i in 1:10) {
-  pla <- GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
-             add_headers(Authorization = paste(get_token[[1]])))
-  if (http_error(pla)) break
+  pla <- tryCatch(GET(paste("https://femexfut.wimucloud.com/apis/rest/players?page=", i, sep=""),
+             add_headers(Authorization = paste(get_token[[1]]))), error = function(e) NULL)
+  if (is.null(pla) || http_error(pla)) break
   pla <- jsonlite::fromJSON(content(pla, as = "text", encoding = "UTF-8"), flatten = TRUE)  # flatten nested fields at parse time
   pla <- as.data.frame(pla)
   pla <- mutate(pla, across(everything(), as.character))
@@ -67,10 +67,10 @@ attributes <- as.data.frame(jsonlite::fromJSON(content(attributes, as = "text", 
 #Loop to extract sesions dataframes based on the page parameter (10 pages => last 2000 sessions)
 sessions <- data.frame()
 for(i in 1:10) {
-  ses <- GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
+  ses <- tryCatch(GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
                    i,sep=""),
-             add_headers(Authorization=paste(get_token[[1]])))
-  if (http_error(ses)) break
+             add_headers(Authorization=paste(get_token[[1]]))), error = function(e) NULL)
+  if (is.null(ses) || http_error(ses)) break
   ses <- as.data.frame(jsonlite::fromJSON(content(ses, as = "text", encoding = "UTF-8")))
   sessions <- vec_rbind(sessions,ses)
 }
@@ -90,11 +90,11 @@ team <- team
 ##We need to extract the ID of each session from the start date
 sessions_informs <- data.frame()
 for (i in 1:10) {
-  sessions_inf <- GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
+  sessions_inf <- tryCatch(GET(paste("https://femexfut.wimucloud.com/apis/rest/sessions?sort=start,desc&page=",
                             i,"&start=",start,
                             # "&end=",end,
-                            "&team=",team,sep=""),add_headers(Authorization=paste(get_token[[1]])))
-  if (http_error(sessions_inf)) break
+                            "&team=",team,sep=""),add_headers(Authorization=paste(get_token[[1]]))), error = function(e) NULL)
+  if (is.null(sessions_inf) || http_error(sessions_inf)) break
   sessions_inf <- as.data.frame(jsonlite::fromJSON(content(sessions_inf, as = "text", encoding = "UTF-8")))
   sessions_informs <- vec_rbind(sessions_informs,sessions_inf)
 }
@@ -111,8 +111,8 @@ for (i in 1:nrow(sessions_informs)) {
 ##Creating a dataframe for each session to finally merge all of them under the same dashboard
 informs <- data.frame() #empty dataframe
 for(i in 1:length(urls)) {
-  inf <- GET(urls[i], add_headers(Authorization=paste(get_token[[1]]))) #API request
-  if (http_error(inf)) next
+  inf <- tryCatch(GET(urls[i], add_headers(Authorization=paste(get_token[[1]]))), error = function(e) NULL) #API request
+  if (is.null(inf) || http_error(inf)) next
   inf <- as.data.frame(jsonlite::fromJSON(content(inf, as = "text", encoding = "UTF-8"))) #convert from JSON to dataframe
   informs <- vec_rbind(informs,inf) #join dataframe extracted with the previous
 }
