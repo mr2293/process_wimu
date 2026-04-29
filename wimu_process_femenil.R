@@ -43,8 +43,8 @@ data_micro <- final_dataframe %>%
     drill_duration  = drillsDuration / 60000,  # milliseconds to minutes
     HSR_over_time   = HSR_abs_dist / session_duration,
     perc_HSR_abs    = perc_HSR_abs / 100,
-    acc             = rowSums(across(matches("^accelerations_zones_[0-9]")), na.rm = TRUE),
-    decc            = rowSums(across(matches("^accelerations_zones_-")),     na.rm = TRUE),
+    acc             = accelerations.highIntensityAccAbsCounter,
+    decc            = accelerations.highIntensityDecAbsCounter,
     acc_plus_decc   = acc + decc,
     tiempo_efectivo = drill_duration / session_duration,
     RPE             = 3.0,
