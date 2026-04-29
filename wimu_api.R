@@ -168,11 +168,11 @@ informs_selection <- informs[,c(
   "distance.HSRAbsDistance",
   "distance.percentageHSRAbs",
   "distance.ranges",
-  "accelerations.accelerations",
-  # "accelerations.highIntensityAccAbsCounter",
+  # "accelerations.accelerations",
+  "accelerations.highIntensityAccAbsCounter",
   # "accelerations.highIntensityAccAbsDistance",
-  "accelerations.decelerations",
-  # "accelerations.highIntensityDecAbsCounter",
+  # "accelerations.decelerations",
+  "accelerations.highIntensityDecAbsCounter",
   # "accelerations.highIntensityDecAbsDistance",
   # "accelerations.maxAcceleration",
   # "accelerations.maxDeceleration",
@@ -272,8 +272,8 @@ final_dataframe$sprint.absMin <- final_dataframe$sprint.abs / final_dataframe$du
 final_dataframe$sprint.nSprintsMin <- final_dataframe$sprint.nSprints / final_dataframe$duration_min
 final_dataframe$sprint.distanceMin <- final_dataframe$sprint.distance / final_dataframe$duration_min
 final_dataframe$sprint.distanceRelativeMin <- final_dataframe$sprint.distanceRelative / final_dataframe$duration_min
-final_dataframe$accelerations.accelerationsMin <- final_dataframe$accelerations.accelerations / final_dataframe$duration_min
-final_dataframe$accelerations.decelerationsMin <- final_dataframe$accelerations.decelerations / final_dataframe$duration_min
+# final_dataframe$accelerations.accelerationsMin <- final_dataframe$accelerations.accelerations / final_dataframe$duration_min
+# final_dataframe$accelerations.decelerationsMin <- final_dataframe$accelerations.decelerations / final_dataframe$duration_min
 # final_dataframe$accelerations.highIntensityAccAbsCounterMin <- final_dataframe$accelerations.highIntensityAccAbsCounter / final_dataframe$duration_min
 # final_dataframe$accelerations.highIntensityDecAbsCounterMin <- final_dataframe$accelerations.highIntensityDecAbsCounter / final_dataframe$duration_min
 # final_dataframe$accelerations.highIntensityAccAbsDistanceMin <- final_dataframe$accelerations.highIntensityAccAbsDistance / final_dataframe$duration_min
