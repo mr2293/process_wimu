@@ -87,7 +87,9 @@ jobs:
           cd ${{ github.workspace }}/dashboard_cargas
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
           git pull --rebase origin main
+          git stash pop
           git add micros/micros_shiny_comb.csv
           git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
           git push
@@ -97,7 +99,9 @@ jobs:
           cd ${{ github.workspace }}/dashboard_femenil
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
           git pull --rebase origin main
+          git stash pop
           git add micros/micros_shiny_comb_fem.csv
           git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
           git push
@@ -107,7 +111,9 @@ jobs:
           cd ${{ github.workspace }}/cargas_fisicas_7
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
           git pull --rebase origin main
+          git stash pop
           git add data/Sessions_micro01.xlsx
           git diff --staged --quiet || git commit -m "chore: update WIMU data $(date +'%Y-%m-%d')"
           git push
