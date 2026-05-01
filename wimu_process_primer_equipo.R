@@ -39,7 +39,7 @@ data_micro <- final_dataframe %>%
     TL              = RPE * player_load,
     match_day       = ifelse(match_day != "MD", gsub(" MD", "", match_day), match_day)
   ) %>%
-  # filter(team.name == "America Primer Equipo") |>
+  filter(team.name == "America Primer Equipo") |>
   filter(!player %in% c("www", "Guillermo Ochoa")) %>%
   distinct(player, date, match_day, .keep_all = TRUE)
 # Select output columns
